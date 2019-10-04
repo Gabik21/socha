@@ -5,6 +5,6 @@ import sc.shared.PlayerColor;
 
 public interface IHeuristic {
 
-  int ratePosition(PlayerColor playerColor, GameState state);
+  int ratePosition( GameState state);
 
 }

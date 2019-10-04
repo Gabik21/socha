@@ -331,7 +331,11 @@ object GameRuleLogic {
 
     @JvmStatic
     fun hasPlayerPlacedBee(gameState: GameState) =
-            gameState.getDeployedPieces(gameState.currentPlayerColor).any { it.type == PieceType.BEE }
+            hasPlayerPlacedBee(gameState, gameState.currentPlayerColor)
+    
+    @JvmStatic
+    fun hasPlayerPlacedBee(gameState: GameState, color: PlayerColor) =
+            gameState.getDeployedPieces(color).any { it.type == PieceType.BEE }
 
     @JvmStatic
     fun boardIsEmpty(board: Board): Boolean =
@@ -339,7 +343,7 @@ object GameRuleLogic {
 
     @JvmStatic
     fun getPossibleMoves(gameState: GameState): List<IMove> =
-            this.getPossibleSetMoves(gameState) + this.getPossibleDragMoves(gameState)
+            this.getPossibleDragMoves(gameState) + this.getPossibleSetMoves(gameState)
 
     @JvmStatic
     fun getPossibleDragMoves(gameState: GameState): List<IMove> =
@@ -348,7 +352,7 @@ object GameRuleLogic {
                 val additionalTargets: Set<CubeCoordinates> = if (startField.pieces.lastElement().type == PieceType.BEETLE) {
                     this.getNeighbours(gameState.board, startField).toSet()
                 } else {
-                    emptySet<CubeCoordinates>()
+                    emptySet()
                 }
                 (edgeTargets + additionalTargets).mapNotNull { destination: CubeCoordinates ->
                     val move = DragMove(startField, destination)
@@ -374,7 +378,8 @@ object GameRuleLogic {
                     .toSet()
                     .filter { this.getNeighbours(board, it).all { it.owner != owner.opponent() } }
 
-    fun getPossibleSetMoves(gameState: GameState): List<IMove> {
+    @JvmStatic
+    fun getPossibleSetMoves(gameState: GameState): List<SetMove> {
         val undeployed = gameState.getUndeployedPieces(gameState.currentPlayerColor)
         val setDestinations = if (undeployed.size == Constants.STARTING_PIECES.length) {
             // current player has not placed any pieces yet (first or second turn)
@@ -385,7 +390,7 @@ object GameRuleLogic {
             } else {
                 // other player placed a piece already
                 gameState.board.getFieldsOwnedBy(gameState.otherPlayerColor)
-                        .flatMap { GameRuleLogic.getNeighbours(gameState.board, it).filter { it.isEmpty } }
+                        .flatMap { it -> getNeighbours(gameState.board, it).filter { it.isEmpty } }
             }
         } else {
             this.getPossibleSetMoveDestinations(gameState.board, gameState.currentPlayerColor)
