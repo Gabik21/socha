@@ -15,7 +15,7 @@ import java.util.List;
 
 public abstract class Logic implements IGameHandler {
   protected static final Logger log = LoggerFactory.getLogger(Logic.class);
-  public static final long MAX_TIME = 1_800;
+  public static final long MAX_TIME = 1_850;
 
   protected Starter client;
   protected GameState gameState;

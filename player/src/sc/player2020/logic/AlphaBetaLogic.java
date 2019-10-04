@@ -17,7 +17,6 @@ public class AlphaBetaLogic extends Logic {
   private final IHeuristic heuristic;
 
   private int currentDepth;
-  private int lastFinishedDepth;
   private long startTime;
   private boolean timeout;
 
@@ -30,32 +29,46 @@ public class AlphaBetaLogic extends Logic {
   @Override
   public void onRequestAction() {
     super.onRequestAction();
-
-    IMove bestMove = null;
-    bestMoves.clear();
+    // Reset timeout
     timeout = false;
+    // Roll back to initial depth
     currentDepth = initialDepth;
     startTime = System.currentTimeMillis();
 
+    IMove chosenMove = null;
+    int lastFinishedDepth = 0;
     int bestRating = Integer.MIN_VALUE;
 
+    // We do have MAX_TIME amount of time to "think" on our move.
+    // If the last tree search was short enough we can go deeper and make the most of our time.
     while (!timeout) {
-      log.info("new catch");
+
+      // Reset working variables
+      bestMoves.clear();
+
+      // Do actual rating
       int rating = minimax(currentDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
       if (!timeout) {
         lastFinishedDepth = currentDepth;
-        // Special case first turn. We want the place always in the middle
-        bestMove = bestMoves.get(gameState.getTurn() == 0 ? 0 : RANDOM.nextInt(bestMoves.size()));
-        bestRating = rating;
+        // With simple heuristics we will get a huge amount of equally rated moves.
+        // This will choose a random one, to make our client unpredictable.
+        // + Special case first turn. We want the place always in the middle
+        if (!bestMoves.isEmpty()) {
+          chosenMove = bestMoves.get(gameState.getTurn() == 0 ? 0 : RANDOM.nextInt(bestMoves.size()));
+          bestRating = rating;
+        }
       }
-      currentDepth += 2;
+      currentDepth++;
     }
 
-    log.info("Time to move: {}ms", System.currentTimeMillis() - startTime);
-    log.info("Rating: {} Depth: {} Move: {}", bestRating, lastFinishedDepth, bestMove);
-    if (bestMove != null) {
-      sendAction(bestMove);
+    log.info("Rating: {} Depth: {} Move: {}", bestRating, lastFinishedDepth, chosenMove);
+
+    if (chosenMove != null) {
+      sendAction(chosenMove);
     } else {
+      // It is possible to run into a position where no move is possible.
+      // At this point we can just send miss moves and hope that we win by magic
       sendAction(new MissMove());
     }
 
@@ -66,14 +79,15 @@ public class AlphaBetaLogic extends Logic {
   /**
    * Recursive minimax combined with alpha beta pruning
    */
-  public int minimax(int depth, int alpha, int beta) {
+  private int minimax(int depth, int alpha, int beta) {
 
+    // We are getting close to lose by time! Exit now.
     if (System.currentTimeMillis() - startTime > MAX_TIME) {
       timeout = true;
       return 0;
     }
 
-    if (depth == 0 || gameState.getRound() == 61) {
+    if (depth == 0 || gameState.getRound() == 60) {
       return heuristic.ratePosition(gameState);
     }
 
@@ -90,10 +104,8 @@ public class AlphaBetaLogic extends Logic {
         if (depth == currentDepth) {
           if (rating > alpha) {
             bestMoves.clear();
-            log.info("clear");
           }
           bestMoves.add(move);
-          log.info("Add equally rated at {}", rating);
         }
         alpha = rating;
 
