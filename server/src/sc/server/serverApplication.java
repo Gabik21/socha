@@ -10,12 +10,12 @@ import sc.shared.SharedConfiguration;
 import java.io.File;
 import java.io.IOException;
 
-public final class Application {
+public final class serverApplication {
 
   public static final Lobby server = new Lobby();
-  private static final Logger logger = LoggerFactory.getLogger(Application.class);
+  private static final Logger logger = LoggerFactory.getLogger(serverApplication.class);
   private static final Object SYNCOBJ = new Object();
-  static {
+  static{
     String config = System.getProperty("logback.configurationFile");
     logger.debug("Loading logback config from {}", config != null ? config : System.getProperty("user.dir")+File.separator+"logback.xml");
     if(config == null)
@@ -23,7 +23,8 @@ public final class Application {
     System.setProperty("file.encoding", "UTF-8");
   }
 
-  public static void main(String[] params) {
+  public  void main() {
+	  String[] params= {};
     // setup server
     try {
       parseArguments(params);

@@ -10,6 +10,7 @@ import sc.plugin2020.util.GameRuleLogic;
 import sc.shared.GameResult;
 import sc.shared.PlayerColor;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,6 +21,8 @@ public abstract class Logic implements IGameHandler {
   protected Starter client;
   protected GameState gameState;
   protected Player currentPlayer;
+  public List<GameState> gameStates = new ArrayList<GameState>();
+  public List<IMove> moves = new ArrayList<IMove>();
 
   public Logic(Starter client) {
     this.client = client;
@@ -43,7 +46,6 @@ public abstract class Logic implements IGameHandler {
   /**
    * {@inheritDoc}
    */
-  @Override
   public void onUpdate(Player player, Player otherPlayer) {
     currentPlayer = player;
     log.info("Spielerwechsel: " + player.getColor());
@@ -52,8 +54,8 @@ public abstract class Logic implements IGameHandler {
   /**
    * {@inheritDoc}
    */
-  @Override
   public void onUpdate(GameState gameState) {
+	this.gameStates.add(gameState);
     this.gameState = gameState;
     currentPlayer = gameState.getCurrentPlayer();
     log.info("Zug: {} Spieler: {}", gameState.getTurn(), currentPlayer.getColor());
@@ -64,6 +66,7 @@ public abstract class Logic implements IGameHandler {
    */
   @Override
   public void sendAction(IMove move) {
+	moves.add(move);
     client.sendMove(move);
   }
 
@@ -95,6 +98,7 @@ public abstract class Logic implements IGameHandler {
   public List<IMove> getPossibleMoves(GameState gameState) {
     List<IMove> moves = GameRuleLogic.getPossibleDragMoves(gameState);
     List<SetMove> possibleSetMoves = GameRuleLogic.getPossibleSetMoves(gameState);
+    GameRuleLogic.getPossibleMoves(gameState);
 
     possibleSetMoves.sort(Comparator.comparingInt(s -> s.getDestination().getX() * s.getDestination().getX()
             + s.getDestination().getY() * s.getDestination().getY()

@@ -3,30 +3,30 @@ package sc.player2020;
 import jargs.gnu.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sc.player2020.logic.AlphaBetaLogic;
-import sc.player2020.logic.Logic;
-import sc.player2020.logic.MinimaxLogic;
+
 import sc.player2020.logic.RandomLogic;
-import sc.player2020.logic.heuristic.SimpleHeuristic;
 import sc.plugin2020.AbstractClient;
+import sc.plugin2020.GameState;
 import sc.plugin2020.IGameHandler;
 import sc.shared.SharedConfiguration;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Hauptklasse des Clients, die ueber Konsolenargumente gesteuert werden kann.
  * Sie veranlasst eine Verbindung zum Spielserver.
  */
-public class Starter extends AbstractClient {
+public class Starter extends AbstractClient implements Cloneable{
   private static final Logger logger = LoggerFactory.getLogger(Starter.class);
-
+  public RandomLogic logic  = new RandomLogic(this);
+  
   public Starter(String host, int port, String reservation) throws Exception {
     // client starten
     super(host, port);
-
+    logic = new RandomLogic(this);
     // Strategie zuweisen
-    IGameHandler logic = new AlphaBetaLogic(this, 2, new SimpleHeuristic());
     setHandler(logic);
 
     // einem Spiel beitreten
