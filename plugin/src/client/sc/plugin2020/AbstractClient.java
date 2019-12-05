@@ -22,7 +22,7 @@ import java.net.ConnectException;
  * Abstrakter Client nach Vorschrift des SDK.
  * Beinhaltet einen LobbyClient, der den tatsächlichen Client darstellt.
  */
-public abstract class AbstractClient implements ILobbyClientListener {
+public abstract class AbstractClient implements ILobbyClientListener, Cloneable{
   private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
 
   /** The handler reacts to messages from the server received by the lobby client */
@@ -46,6 +46,7 @@ public abstract class AbstractClient implements ILobbyClientListener {
   private int port;
   /** current figurecolor to identify which client belongs to which player */
   private PlayerColor color;
+
 
   public AbstractClient(String host, int port, PlayerType id) throws IOException {
     this.gameType = GamePlugin.PLUGIN_UUID;
@@ -144,7 +145,6 @@ public abstract class AbstractClient implements ILobbyClientListener {
   public void onGamePrepared(PrepareGameProtocolMessage response) {
   }
 
-  @Override
   public void onGamePaused(String roomId, Player nextPlayer) {
   }
 
