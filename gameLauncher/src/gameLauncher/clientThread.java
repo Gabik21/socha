@@ -4,10 +4,13 @@ package gameLauncher;
 import sc.player2020.Starter;
 import sc.shared.SharedConfiguration;
 
-public class clientThread extends Thread {
+public class clientThread extends Thread implements Cloneable{
+	/****************************************************************************************
+	 * Class for starting and running clients in Background									* 
+	 * @author Vincent Helbig																*
+	 ****************************************************************************************/
 	public Starter player;
 	//public GameoverListener listener = new GameoverListener("listener",server.server);
-	private Thread t;
 	private String threadName;
 
 	clientThread( String name) {
